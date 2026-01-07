@@ -9,8 +9,35 @@
     .container{ max-width:750px; margin:auto; background:white; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);} 
     h1{ text-align:center;}
     .list-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-    .item{ margin:6px 0; padding:8px; background:#fafafa; border-radius:6px; display:flex; align-items:center; gap:10px; border:1px solid #ddd; }
-    .item input[type="text"]{ flex:1; padding:6px 8px; border-radius:6px; border:1px solid #ccc; background:white; font-size:14px; }
+
+    /* FIXED: mobile overflow + delete alignment */
+    .item{ 
+      margin:6px 0; 
+      padding:8px; 
+      background:#fafafa; 
+      border-radius:6px; 
+      display:flex; 
+      align-items:flex-start; 
+      gap:10px; 
+      border:1px solid #ddd; 
+      width:100%;
+      box-sizing:border-box;
+    }
+
+    .item textarea{
+      flex:1;
+      padding:6px 8px;
+      border-radius:6px;
+      border:1px solid #ccc;
+      background:white;
+      font-size:14px;
+      resize:none;
+      overflow:hidden; /* auto height */
+      min-height:36px;
+      line-height:1.4;
+      width:100%;
+    }
+
     button{ padding:10px 15px; border:none; background:#4CAF50; color:white; border-radius:6px; cursor:pointer; font-size:14px; white-space:nowrap; }
     button.secondary{ background:#2196F3 }
     button.ghost{ background:#666; }
@@ -19,9 +46,15 @@
       padding:6px 10px;
       border-radius:6px;
       font-size:12px;
+      margin-left:auto; /* keeps delete to right */
     }
     button:hover{ filter:brightness(0.9); }
     .footer-text{ text-align:center; margin-top:15px; font-size:13px; color:#666; }
+
+    @media(max-width:600px){
+      .item{ gap:8px; }
+      button.delete{ font-size:11px; }
+    }
   </style>
 </head>
 <body>
@@ -63,6 +96,11 @@
 
     const listContainer = document.getElementById("list");
 
+    function autoResize(el){
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+
     function render(){
       listContainer.innerHTML = "";
       items.forEach((text, index) => {
@@ -73,12 +111,13 @@
         checkbox.type = "checkbox";
         checkbox.id = "item" + index;
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = text;
-        input.className = "item-text";
-        input.addEventListener('input', () => {
-          items[index] = input.value;
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.className = "item-text";
+        autoResize(textarea);
+        textarea.addEventListener('input', (e) => {
+          items[index] = textarea.value;
+          autoResize(textarea);
         });
 
         const delBtn = document.createElement('button');
@@ -90,7 +129,7 @@
         };
 
         div.appendChild(checkbox);
-        div.appendChild(input);
+        div.appendChild(textarea);
         div.appendChild(delBtn);
         listContainer.appendChild(div);
       });
