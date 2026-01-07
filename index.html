@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Grocery Checklist</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f7f7f7; padding:20px; }
+    .container{ max-width:750px; margin:auto; background:white; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);} 
+    h1{ text-align:center;}
+    .list-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+    .item{ margin:6px 0; padding:8px; background:#fafafa; border-radius:6px; display:flex; align-items:center; gap:10px; border:1px solid #ddd; }
+    .item input[type="text"]{ flex:1; padding:6px 8px; border-radius:6px; border:1px solid #ccc; background:white; font-size:14px; }
+    button{ padding:10px 15px; border:none; background:#4CAF50; color:white; border-radius:6px; cursor:pointer; font-size:14px; white-space:nowrap; }
+    button.secondary{ background:#2196F3 }
+    button.ghost{ background:#666; }
+    button.delete{
+      background:#e53935;
+      padding:6px 10px;
+      border-radius:6px;
+      font-size:12px;
+    }
+    button:hover{ filter:brightness(0.9); }
+    .footer-text{ text-align:center; margin-top:15px; font-size:13px; color:#666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Monthly Grocery Checklist</h1>
+
+    <div id="list"></div>
+
+    <br>
+    <div class="list-actions">
+      <button onclick="copySelected()">Copy Selected Items</button>
+      <button class="secondary" onclick="sendToWhatsApp()">Send to WhatsApp</button>
+      <button class="ghost" onclick="addNewItem()">Add New Item</button>
+    </div>
+
+    <p class="footer-text">Edit items freely → select → Copy or Send to WhatsApp ✨</p>
+  </div>
+
+  <script>
+    let items = [
+      "Karnataka ponni - 3kg",
+      "Basmati - 2kg",
+      "Sugar - 1kg",
+      "Anil semiya white - 2",
+      "Aashirvad aata - 1/2 (2-packets)",
+      "Vim bar soap small - 10",
+      "Harpic blue - 1",
+      "Harpic red - 1",
+      "Bathroom flush - 2 packs",
+      "Garbage bag - small - 2, big - 2",
+      "Lyzol - green - 1",
+      "Fab liquid - 2 litre",
+      "Sakthi manjal thool - 50gm",
+      "Sakthi milagu thool - 50gm",
+      "Sakthi Garam masala - 50gm",
+      "Vellai sundal - 500gm",
+      "Poondu - 250gm"
+    ];
+
+    const listContainer = document.getElementById("list");
+
+    function render(){
+      listContainer.innerHTML = "";
+      items.forEach((text, index) => {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = "item" + index;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = text;
+        input.className = "item-text";
+        input.addEventListener('input', () => {
+          items[index] = input.value;
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.className = 'delete';
+        delBtn.onclick = () => {
+          items.splice(index,1);
+          render();
+        };
+
+        div.appendChild(checkbox);
+        div.appendChild(input);
+        div.appendChild(delBtn);
+        listContainer.appendChild(div);
+      });
+    }
+
+    render();
+
+    async function safeCopy(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Copied to clipboard! Pas
