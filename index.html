@@ -101,4 +101,66 @@
     async function safeCopy(text) {
       try {
         await navigator.clipboard.writeText(text);
-        alert("Copied to clipboard! Pas
+        alert("Copied to clipboard! Paste in WhatsApp 👍");
+      } catch (err) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          const ok = document.execCommand('copy');
+          if (ok) alert('Copied using fallback! Paste in WhatsApp 👍');
+          else alert('Copy failed. Please long‑press & copy manually.');
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+    }
+
+    function getSelectedItems(){
+      const selected = [];
+      document.querySelectorAll('#list .item').forEach((row) => {
+        const box = row.querySelector('input[type=checkbox]');
+        const text = row.querySelector('.item-text').value.trim();
+        if (box.checked && text) selected.push(text);
+      });
+      return selected;
+    }
+
+    function copySelected(){
+      const selected = getSelectedItems();
+      if (!selected.length){
+        alert("Please select at least one item");
+        return;
+      }
+      safeCopy(selected.join("\n"));
+    }
+
+    function sendToWhatsApp(){
+      const selected = getSelectedItems();
+      if (!selected.length){
+        alert("Please select at least one item");
+        return;
+      }
+
+      const message = encodeURIComponent(selected.join("\n"));
+
+      const webUrl = `https://api.whatsapp.com/send?text=${message}`;
+      const mobileUrl = `whatsapp://send?text=${message}`;
+
+      try {
+        window.open(webUrl, '_blank');
+      } catch(e){
+        window.location.href = mobileUrl;
+      }
+    }
+
+    function addNewItem(){
+      items.push("");
+      render();
+    }
+  </script>
+</body>
+</html>
